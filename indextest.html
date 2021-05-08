@@ -1,0 +1,555 @@
+<!doctype html>
+<html>
+
+<head>
+
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+
+
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src='https://unpkg.com/@turf/turf/turf.min.js'></script>
+
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
+
+    <script src='https://labs.easyblog.it/maps/leaflet-search/src/leaflet-search.js'></script>
+    <link href='https://labs.easyblog.it/maps/leaflet-search/src/leaflet-search.css' rel='stylesheet' />
+
+    <style>
+        #leftPanel {
+            Position: absolute;
+            Left: 10px;
+            top: 270px;
+            height: 500px;
+            width: 150px;
+            Z-index: 10000;
+            Background-color: #ccc;
+            opacity: .8;
+
+        }
+
+
+
+        #rightPanel {
+            Position: absolute;
+            right: 10px;
+            top: 200px;
+            height: 700px;
+            width: 200px;
+            Z-index: 10000;
+            Background-color: #ccc;
+            opacity: .8;
+
+        }
+
+        #clickers {
+            position: absolute;
+            right: 30px;
+            top: 130px;
+            height: 50px;
+            width: 300px;
+            Background-color: #ccc;
+            opacity: .8;
+            Z-index: 10000;
+            text-align: center;
+
+        }
+
+        #clickers p {
+            display: inline-block;
+            border-style: dashed;
+        }
+
+
+
+
+        header {
+
+            background-color: black
+        }
+
+
+        nav ul {
+            text-align: right;
+
+        }
+
+        nav li {
+            display: inline-block;
+
+
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            font-family: 'Source Code Pro', monospace;
+            text-transform: uppercase;
+            padding-left: 30px;
+            padding-right: 30px;
+            font-size: 25px;
+        }
+
+        nav a:hover {
+            color: antiquewhite;
+            text-decoration: underline;
+
+        }
+
+
+        header h4 {
+            color: white;
+        }
+
+
+        footer {
+            background-color: black;
+            padding: 10px;
+        }
+
+        footer h4 {
+            color: white;
+            text-align: right;
+        }
+
+        footer a {
+            text-decoration: none;
+            display: inline-block;
+            padding: 10px;
+            color: white;
+            border: 2px solid #fff;
+            border-radius: 600px;
+            margin-top: 5px;
+            margin-left: 10px;
+        }
+
+
+        footer .fab {
+            font-size: 40px;
+        }
+
+        footer .fas {
+            font-size: 40px;
+        }
+
+        footer a:hover {
+            background: white;
+        }
+
+        footer a:hover .fab {
+            color: #000;
+        }
+
+        footer a:hover .fas {
+            color: #000;
+        }
+
+    </style>
+
+
+
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+
+    <header id="header">
+
+
+
+
+        <H4>Mike The Mapper </H4>
+
+        <hr>
+
+
+        <nav>
+            <ul>
+                <li><a href="index.html">About</a></li>
+
+                <li><a href="mycontact.html">Contact</a></li>
+
+            </ul>
+
+
+
+        </nav>
+
+
+    </header>
+    <div id="clickers">
+
+
+        <p onclick="clickOpenFunction()">Open Fullscreen</p>
+        <p onclick="clickCloseFunction()">Close Fullscreen</p>
+
+
+    </div>
+
+
+    <script>
+        let clickerObj = document.getElementById("clickers");
+
+        clickerObj.addEventListener("mouseenter", function() {
+            clickerObj.style.cursor = "pointer";
+        });
+
+        clickerObj.addEventListener("mouseleave", function(e) {
+            e.target.style.cursor = "auto";
+        });
+
+    </script>
+
+
+
+    <div id="leftPanel">
+
+        <h4>Left Panel</h4>
+        <form>
+            <select id="bqxStopForm" size="8" onchange="changeStops()">
+            </select>
+        </form>
+
+
+    </div>
+
+
+    <div id="rightPanel">
+
+        <h4>Right Panel</h4>
+
+
+
+        <form action="assets/process.php" method="post" enctype="multipart/form-data">
+            <label for="name">Your Name:</label><br>
+            <input type="text" id="name" name="name"><br>
+            <br>
+
+            <label for="message">Your Opinion:</label><br>
+            <textarea name="message" rows="10" cols="20"></textarea>
+            <br><br>
+            <input type="hidden" id="precinctID" name="precinctID" value="" />
+            <input type="submit" value="submit">
+        </form>
+
+
+
+
+    </div>
+
+
+
+
+    <script>
+        var elem = document.documentElement;
+
+        function clickOpenFunction() {
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+                document.getElementById("rightPanel").style.display = "none";
+                document.getElementById("leftPanel").style.display = "none";
+                document.getElementById("header").style.display = "none";
+                document.getElementById("footer").style.display = "none";
+            } else if (elem.mozRequestFullScreen) {
+                /* Firefox */
+                elem.mozRequestFullScreen();
+                document.getElementById("rightPanel").style.display = "none";
+                document.getElementById("leftPanel").style.display = "none";
+                document.getElementById("header").style.display = "none";
+                document.getElementById("footer").style.display = "none";
+            } else if (elem.webkitRequestFullscreen) {
+                /* Chrome, Safari & Opera */
+                elem.webkitRequestFullscreen();
+                document.getElementById("rightPanel").style.display = "none";
+                document.getElementById("leftPanel").style.display = "none";
+                document.getElementById("header").style.display = "none";
+                document.getElementById("footer").style.display = "none";
+            } else if (elem.msRequestFullscreen) {
+                /* IE/Edge */
+                elem.msRequestFullscreen();
+                document.getElementById("rightPanel").style.display = "none";
+                document.getElementById("leftPanel").style.display = "none";
+                document.getElementById("header").style.display = "none";
+                document.getElementById("footer").style.display = "none";
+            }
+        }
+
+
+        function clickCloseFunction() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+                document.getElementById("rightPanel").style.display = "block";
+                document.getElementById("leftPanel").style.display = "block";
+                document.getElementById("header").style.display = "block";
+                document.getElementById("footer").style.display = "block";
+            } else if (document.mozCancelFullScreen) {
+                /* Firefox */
+                document.mozCancelFullScreen();
+                document.getElementById("rightPanel").style.display = "block";
+                document.getElementById("leftPanel").style.display = "block";
+                document.getElementById("header").style.display = "block";
+                document.getElementById("footer").style.display = "block";
+            } else if (document.webkitExitFullscreen) {
+                /* Chrome, Safari and Opera */
+                document.webkitExitFullscreen();
+                document.getElementById("rightPanel").style.display = "block";
+                document.getElementById("leftPanel").style.display = "block";
+                document.getElementById("header").style.display = "block";
+                document.getElementById("footer").style.display = "block";
+            } else if (document.msExitFullscreen) {
+                /* IE/Edge */
+                document.msExitFullscreen();
+                document.getElementById("rightPanel").style.display = "block";
+                document.getElementById("leftPanel").style.display = "block";
+                document.getElementById("header").style.display = "block";
+                document.getElementById("footer").style.display = "block";
+            }
+        }
+
+    </script>
+
+
+
+
+    <div id="testMap" style="height: 100vh; width: 100%;"> </div>
+
+    <script>
+        var mymap = L.map('testMap').setView([47.58362, -122.233286], 13);
+
+
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: 'mapbox/streets-v11',
+            tileSize: 512,
+            zoomOffset: -1,
+            accessToken: 'pk.eyJ1IjoiZmlyZWRpcmVjdGlvbiIsImEiOiJjanhwZDlndXQwZ2lkM2VwNHIzZGpzMGpjIn0.a9d87Xax3Me_0SdEj8eAeQ'
+        }).addTo(mymap);
+
+        var popup = L.popup();
+
+        function onMapClick(e) {
+            popup
+                .setLatLng(e.latlng)
+                .setContent("You clicked the map at " + e.latlng.toString())
+                .openOn(mymap);
+        }
+
+        mymap.on('click', onMapClick);
+
+    </script>
+
+    <script>
+        //how can I re-run this code whenever data.json is changed?  
+        //how can I pick up the features with same projectID... about data strucutre
+        //still unsure how I can make this Json file as a variable, so that I can refer it to later..I only use it in Python.
+
+
+
+        //I have to design more flexible json file. 
+        // hard drive / memory 
+        // one precinct has to have all name and comment. 
+        // geogeoJson should be inside of get Json!!!!!!!!!!!!!!!!!!!  
+        //I have to load the json first 
+        //d3.js has D3.que         
+
+
+
+        var kingCountyVotingDistLayer = L.geoJSON(null, {
+            style: function(feature) {
+                return {
+                    color: "#000",
+                    fill: "#ccc"
+                };
+            },
+            onEachFeature: onEachFeature
+
+        }).addTo(mymap);
+
+
+        
+//         text2 = "";
+//            console.log(test);
+//            for (i in test) {
+//                if (test[i]["precinctID"] == "SEA 48-0201") {
+//                    text2 += test[i]["name"] + ":" + test[i]["message"];
+//                    console.log(text2);
+//                }
+//        
+        var test;
+
+        $.getJSON("assets/data.json", function(data) {
+            test = data;
+            console.log(test);
+            }
+        );
+
+
+        $.getJSON("./votingPrecinctTest2.geojson", function(data) {
+
+            console.log(data);
+            console.log(data.features.length);
+
+            // Do NOT create the GeoJSON layer here.
+            // Create it outside and then fill the data
+            kingCountyVotingDistLayer.addData(data);
+        });
+
+
+
+        function onEachFeature(feature, layer) {
+            var popupContent = "<p>Feature Type: " + feature.geometry.type +
+                "</br> Name: " + feature.properties.NAME +
+                "</br> Total Voters: " + feature.properties.SUM_VOTERS;
+//                    console.log(feature.properties.NAME, test[0].precinctID);            
+                                    var text87 = " "; 
+                                    for (i in test){
+                    if(test[i].precinctID == feature.properties.NAME){
+//                                  console.log(test[i]["precintID"] == feature.properties.NAME);
+                                  text87 += test[i].name+": "+test[i].message;
+                                    
+                          console.log(text87);
+                        popupContent += text87;
+                            }}
+            
+             
+             
+               popupContent += "</p>";
+
+            if (feature.properties && feature.properties.popupContent) {
+                popupContent += feature.properties.popupContent;
+            }
+
+            layer.bindPopup(popupContent);
+
+            layer.on({
+
+                mouseover: function(e) {
+                    e.target.setStyle({
+                        fillColor: "#994400"
+                    })
+                },
+                mouseout: (e) => kingCountyVotingDistLayer.resetStyle(e.target),
+                click: (e) => document.getElementById('precinctID').value = feature.properties.NAME
+            })
+        };
+
+
+
+
+
+
+
+
+
+        //var items = $.getJSON( "assets/data.json");
+        //        
+        // console.log(items); 
+        //        
+        //
+        //        
+        //
+        //        
+        //$.getJSON("assets/data.json", function(data) {
+        //  console.log(data);
+        //  console.log(data[2]);
+        //puesdo code
+        ////  for i in data.length
+        //    if console.log(data[i].precinctID) = clicked id    
+        //    
+
+
+
+
+
+
+        //if I wait some time.....I will see
+
+        //        console.log(test);        
+
+
+        //$.getJSON("assets/data.json", function(data) {
+        //    
+        //    var test2 = [];
+        //  $.each( data, function( key, val ) {
+        //    test2.push( key + val);
+        //  });
+        //    
+        //}
+        //        
+        //console.log(test2);        
+
+        //$.getJSON( "ajax/test.json", function( data ) {
+        //  var items = [];
+        //  $.each( data, function( key, val ) {
+        //    items.push( "<li id='" + key + "'>" + val + "</li>" );
+        //  });
+        //        
+
+    </script>
+
+    <script>
+        mymap.addControl(new L.Control.Search({
+            url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
+            jsonpParam: 'json_callback',
+            propertyName: 'display_name',
+            propertyLoc: ['lat', 'lon'],
+            marker: L.circleMarker([0, 0], {
+                radius: 10
+            }),
+            autoCollapse: true,
+            autoType: false,
+            minLength: 2
+        }));
+
+    </script>
+
+
+    <footer id="footer">
+
+
+        <h4>Get Connected</h4>
+        <hr>
+
+        <a href=https://www.linkedin.com/in/michael-seo-b15931a7> <i class="fab fa-linkedin" id="icon"></i>
+        </a>
+
+        <a href=https://www.instagram.com/noloiteringhere> <i class="fab fa-instagram" id="icon"></i>
+        </a>
+
+
+        <a href="http://www.lisc.org/">
+            <i class="fas fa-landmark" id="icon"></i>
+        </a>
+
+
+
+
+
+
+    </footer>
+
+
+</body>
+
+</html>

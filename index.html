@@ -1,0 +1,713 @@
+<!doctype html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+   <link href="https://fonts.googleapis.com/css2?family=Anton&family=PT+Sans+Caption:wght@700&display=swap" rel="stylesheet">
+    
+    
+  
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+
+
+        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+        
+        
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src='https://unpkg.com/@turf/turf/turf.min.js'></script>
+
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css'
+        rel='stylesheet' />
+
+   <script src='https://labs.easyblog.it/maps/leaflet-search/src/leaflet-search.js'></script>
+    <link href='https://labs.easyblog.it/maps/leaflet-search/src/leaflet-search.css' rel='stylesheet' />
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>   
+    
+    <style>
+        #leftPanel {
+            Position: absolute;
+            Left: 10px;
+            top: 300px;
+            height: 550px;
+            width: 500px;
+            Z-index: 10000;
+            Background-color: #ccc;
+            opacity: .8;
+
+        }
+
+
+
+        #rightPanel {
+            Position: absolute;
+            right: 10px;
+            top: 200px;
+            height: 550px;
+            width: 250px;
+            Z-index: 10000;
+            Background-color: #ccc;
+            opacity: 0.6;
+         font-family: 'PT Sans Caption', sans-serif;
+            text-transform: uppercase;
+            color: darkgreen;
+
+        }
+
+        #clickers {
+            position: absolute;
+            right: 30px;
+            top: 130px;
+            height: 50px;
+            width: 300px;
+            Background-color: #ccc;
+            opacity: .8;
+            Z-index: 10000;
+            text-align: center;
+
+        }
+
+        #clickers p {
+            display: inline-block;
+            border-style: dashed;
+        }
+
+
+
+
+        header {
+
+            background-color: green;
+        }
+
+
+        nav ul {
+            text-align: right;
+
+        }
+
+        nav li {
+            display: inline-block;
+    text-transform: uppercase;
+            padding-left: 30px;
+            padding-right: 30px;
+            padding-bottom: 5px;
+            font-size: 30px;
+        font-family: 'PT Sans Caption', sans-serif;
+        }
+        
+      
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            display: block;
+   
+            text-transform: uppercase;
+            padding-left: 30px;
+            padding-right: 30px;
+            font-size: 25px;
+        }
+
+
+
+
+        header h4 {
+            color: greenyellow;
+            font-size: 25px;
+           font-family: 'PT Sans Caption', sans-serif;
+        }
+        
+        
+        
+  
+
+        
+
+        footer {
+            background-color: green;
+            padding: 10px;
+        }
+
+        footer h4 {
+            color: white;
+            text-align: right;
+        }
+
+        footer a {
+            text-decoration: none;
+            display: inline-block;
+            padding: 10px;
+            color: white;
+            border: 2px solid #fff;
+            border-radius: 600px;
+            margin-top: 5px;
+            margin-left: 10px;
+        }
+
+
+        footer .fab {
+            font-size: 40px;
+        }
+
+        footer .fas {
+            font-size: 40px;
+        }
+
+        footer a:hover {
+            background: white;
+        }
+
+        footer a:hover .fab {
+            color: #000;
+        }
+
+        footer a:hover .fas {
+            color: #000;
+        }
+
+        
+        button {
+                  font-family:'PT Sans Caption', sans-serif; 
+        }
+        
+        P {
+            
+        font-family:'PT Sans Caption', sans-serif;    
+        color: darkgreen;
+            
+            
+        }
+        
+        #myChart {
+        color: darkgreen
+            
+        }
+        
+        
+    </style>
+
+
+
+ 
+
+
+
+</head>
+
+<body>
+
+
+
+
+
+    <header id="header">
+
+
+
+
+        <H4> King County General Election Voting Pattern Analysis </H4>
+
+   
+
+
+        <nav>
+
+         <ul>
+                <li>                            <!-- Button trigger modal -->
+<button type="button" style= "font-family:'PT Sans Caption', sans-serif; font-size: large; color: greenyellow" class="btn btn-outline-success" data-toggle="modal" data-target="#exampleModalCenter">
+  Please Read Me: How to Use This Map
+</button></li>
+
+               
+
+            </ul>
+    
+            
+            
+            
+
+ 
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content" style="background-color: lightgrey">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle" style="color:green" >We want your voice!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        This map is showing value of residuals from a regression analysis with two variables: <br>1. % of voters voting "NO" for Initiatives 976 (dependent variable) <br> 2. % of voters voting "Approve" for Referendum #88 in the general election 2019. (explanatory variable) <br>
+          In most case, voter who votes "NO" for Initiatives 976 would also expectedly vote "Approve" for Referendum #88, under general "Progressive" value system, which is prevalent in Washington state. <br>
+          However, sometimes, there are precinct showing diverging sentiment on this kind of pair of seemingly similar voting races. That is where this regression model underpredicts, leaving residual with higher value. <br>  <br>
+          Now, YOU can look for a precinct with high residual and leave a comment (on your right), about what factor you think makes this conflict happen. That could be race, education, income level, and whatever. <br>
+          You can search through the precincts in 3 ways: <br>
+          1. Just look at the map and drag around it. <br>
+          2. Examine residual graph on the left and click the bubble of your interest, and you will be led to corresponding precinct. <br>
+          3. Using an address search bar on top left, you can search an address of the location of your interest, and then you will see the precinct that encompasses your location. <br> <br>
+          Once you find an precinct of your interest, you click it, and then check out if somebody else already left comments there. Regardless, once you click the precinct, put your name and comment into the form on the right, then hit the submit button. Your comment will show up in the popup box of the precinct. That is it!  <br> <br> We will use your input to better adjust our statistical model. We will examine your recommendation, and then will actively look into related variables, and then add them into our model. So we are building this research <b>together</b>!
+
+          
+          
+          
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-success" data-dismiss="modal" style= "font-family:'PT Sans Caption', sans-serif; font-size: large; color: green">Close</button>
+
+      </div>
+    </div>
+  </div>
+</div>     
+        
+
+        
+
+
+
+        </nav>
+
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    </header>
+    <div id="clickers">
+
+
+        <p onclick="clickOpenFunction()">Open Fullscreen</p>
+        <p onclick="clickCloseFunction()">Close Fullscreen</p>
+
+
+    </div>
+
+
+    <script>
+        let clickerObj = document.getElementById("clickers");
+
+        clickerObj.addEventListener("mouseenter", function() {
+            clickerObj.style.cursor = "pointer";
+        });
+
+        clickerObj.addEventListener("mouseleave", function(e) {
+            e.target.style.cursor = "auto";
+        });
+
+    </script>
+
+
+
+    <div id="leftPanel">
+
+      
+     <canvas id="myChart" width="380" height="380"></canvas>
+            
+    </div>
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    <div id="rightPanel">
+
+        <h4>Submit your Comment</h4>
+    
+        
+        
+        <form action="assets/process.php" method="post" enctype="multipart/form-data">
+	  <label for="name">Your Name:</label><br>
+  <input type="text" id="name" name="name"><br>
+		<br>
+
+<label for="message">Your Opinion:</label><br>      
+		 <textarea name="message" rows="10" cols="20"></textarea>
+		<br><br>
+        <input type="hidden" id="precinctID" name="precinctID" value="" />    
+		<input type="submit" value="submit" style="font-family:'PT Sans Caption', sans-serif; font-size: larger; color: darkgreen">
+	</form>
+        
+        
+        
+
+    </div>
+
+
+
+
+    <script>
+        var elem = document.documentElement;
+
+        function clickOpenFunction() {
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+                document.getElementById("rightPanel").style.display = "none";
+                document.getElementById("leftPanel").style.display = "none";
+                document.getElementById("header").style.display = "none";
+                document.getElementById("footer").style.display = "none";
+            } else if (elem.mozRequestFullScreen) {
+                /* Firefox */
+                elem.mozRequestFullScreen();
+                document.getElementById("rightPanel").style.display = "none";
+                document.getElementById("leftPanel").style.display = "none";
+                document.getElementById("header").style.display = "none";
+                document.getElementById("footer").style.display = "none";
+            } else if (elem.webkitRequestFullscreen) {
+                /* Chrome, Safari & Opera */
+                elem.webkitRequestFullscreen();
+                document.getElementById("rightPanel").style.display = "none";
+                document.getElementById("leftPanel").style.display = "none";
+                document.getElementById("header").style.display = "none";
+                document.getElementById("footer").style.display = "none";
+            } else if (elem.msRequestFullscreen) {
+                /* IE/Edge */
+                elem.msRequestFullscreen();
+                document.getElementById("rightPanel").style.display = "none";
+                document.getElementById("leftPanel").style.display = "none";
+                document.getElementById("header").style.display = "none";
+                document.getElementById("footer").style.display = "none";
+            }
+        }
+
+
+        function clickCloseFunction() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+                document.getElementById("rightPanel").style.display = "block";
+                document.getElementById("leftPanel").style.display = "block";
+                document.getElementById("header").style.display = "block";
+                document.getElementById("footer").style.display = "block";
+            } else if (document.mozCancelFullScreen) {
+                /* Firefox */
+                document.mozCancelFullScreen();
+                document.getElementById("rightPanel").style.display = "block";
+                document.getElementById("leftPanel").style.display = "block";
+                document.getElementById("header").style.display = "block";
+                document.getElementById("footer").style.display = "block";
+            } else if (document.webkitExitFullscreen) {
+                /* Chrome, Safari and Opera */
+                document.webkitExitFullscreen();
+                document.getElementById("rightPanel").style.display = "block";
+                document.getElementById("leftPanel").style.display = "block";
+                document.getElementById("header").style.display = "block";
+                document.getElementById("footer").style.display = "block";
+            } else if (document.msExitFullscreen) {
+                /* IE/Edge */
+                document.msExitFullscreen();
+                document.getElementById("rightPanel").style.display = "block";
+                document.getElementById("leftPanel").style.display = "block";
+                document.getElementById("header").style.display = "block";
+                document.getElementById("footer").style.display = "block";
+            }
+        }
+
+    </script>
+
+
+
+
+    <div id="testMap" style="height: 100vh; width: 100%;"> </div>
+
+    <script>
+        var mymap = L.map('testMap').setView([47.58362, -122.233286], 13);
+
+
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: 'mapbox/streets-v11',
+            tileSize: 512,
+            zoomOffset: -1,
+            accessToken: 'pk.eyJ1IjoiZmlyZWRpcmVjdGlvbiIsImEiOiJjanhwZDlndXQwZ2lkM2VwNHIzZGpzMGpjIn0.a9d87Xax3Me_0SdEj8eAeQ'
+        }).addTo(mymap);
+
+        var popup = L.popup();
+
+        function onMapClick(e) {
+            popup
+                .setLatLng(e.latlng)
+                .setContent("You clicked the map at " + e.latlng.toString())
+                .openOn(mymap);
+        }
+
+        mymap.on('click', onMapClick);
+
+    </script>
+
+    <script>
+    
+
+        function getColor(d) {
+    return d > 2 ? '#800026' :
+           d > 1.5  ? '#BD0026' :
+           d > 1  ? '#E31A1C' :
+           d > 0.5  ? '#FC4E2A' :
+           d > 0   ? '#FD8D3C' :
+           d > -0.5   ? '#FEB24C' :
+           d > -1   ? '#FED976' :
+                      '#FFEDA0';
+}
+                    
+   
+function style(feature) {
+    return {
+        fillColor: getColor(feature.properties.STDRESID),
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.7
+    };
+}
+
+
+        
+        
+
+  var kingCountyVotingDistLayer = L.geoJSON(null, {
+            style: style,
+            onEachFeature: onEachFeature
+
+        }).addTo(mymap);
+
+
+        
+
+        var test;
+
+        $.getJSON("assets/data.json", function(data) {
+            test = data;
+            console.log(test);
+            }
+        );
+
+    var storage = [];
+        $.getJSON("./gwrResult.geojson", function(data) {
+  
+            kingCountyVotingDistLayer.addData(data);
+         
+           
+            storage =[];
+            data.features.forEach(features =>{
+                storage.push({
+                
+            x: features.properties.STDRESID,
+            y: features.properties.C_FINALDAT,
+            ID: features.properties.FID        
+            
+            })
+       
+        return storage; 
+        })
+        var ctx = document.getElementById('myChart').getContext('2d');
+      
+var scatterChart = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+        datasets: [{
+            label: 'Scatterplot of Residual and Coefficient Value',
+            fontColor: "rgba(30, 130, 76, 1)",
+             backgroundColor: "rgba(30, 130, 76, 1)",
+            hoverBackgroundColor: "rgba(232,105,90,0.8)",
+            hoverBorderColor: "orange",
+            data: storage
+        }]
+    },
+    options: {
+        scales: {
+            xAxes: [{
+                type: 'linear',
+                position: 'bottom',
+                scaleLabel: {
+            display: true,
+            labelString: 'Residual'
+          }
+            }],
+            
+           yAxes: [{
+                scaleLabel: {
+            display: true,
+            labelString: 'Coefficient'
+          }
+            }]
+        },
+        onClick: graphClickEvent
+    }
+});       
+        });
+
+
+        
+    
+       
+
+ 
+        
+   
+        
+  
+        
+var selectedID;        
+        
+function graphClickEvent(event, array){
+    if(array[0]){
+        console.log(array[0]); 
+        console.log(array[0]._index);
+        selectedID = this.data.datasets[0].data[array[0]._index].ID;
+        console.log(selectedID);
+        
+         var kingCountyVotingDistLayerChosen = L.geoJSON(null, {
+            style: function(feature) {
+                return {
+                    color: "##0000FF",
+                    fill: "#00FFFF"
+                };
+            },
+             onEachFeature: onEachFeature,
+            filter: (f) => {
+            return  (f.properties.FID == selectedID)     
+            }
+
+        }).addTo(mymap);
+
+       
+        
+        $.getJSON("./gwrResult.geojson", function(data) {
+            
+             kingCountyVotingDistLayerChosen.addData(data);
+             mymap.fitBounds(kingCountyVotingDistLayerChosen.getBounds());
+        })}};        
+        
+
+        function onEachFeature(feature, layer) {
+            var popupContent = "<p>Feature Type: " + feature.geometry.type +
+                "</br> Name: " + feature.properties.NAME +
+                "</br> Total Voters: " + feature.properties.SUM_VOTERS+"</br> FID: " + feature.properties.FID+"</br>";
+//                    console.log(feature.properties.NAME, test[0].precinctID);            
+                                    var text87 = " "; 
+                                    for (i in test){
+                    if(test[i].precinctID == feature.properties.NAME){
+//                                  console.log(test[i]["precintID"] == feature.properties.NAME);
+                                  text87 += test[i].name+": "+test[i].message+"</br>";
+                                    
+                          console.log(text87);
+                        popupContent += text87;
+                        var text87 = " ";
+                            }}
+            
+             
+             
+               popupContent += "</p>";
+
+            if (feature.properties && feature.properties.popupContent) {
+                popupContent += feature.properties.popupContent;
+            }
+
+            layer.bindPopup(popupContent);
+
+            layer.on({
+
+                mouseover: function(e) {
+                    e.target.setStyle({
+                        fillColor: "#994400"
+                    })
+                },
+                mouseout: (e) => kingCountyVotingDistLayer.resetStyle(e.target),
+                click: (e) => document.getElementById('precinctID').value = feature.properties.NAME
+            })
+        };
+
+    
+
+        
+    
+        
+        
+  </script>
+
+
+        
+      
+    
+  
+
+<script>
+    
+    	mymap.addControl( new L.Control.Search({
+		url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
+		jsonpParam: 'json_callback',
+		propertyName: 'display_name',
+		propertyLoc: ['lat','lon'],
+		marker: L.circleMarker([0,0],{radius:10}),
+		autoCollapse: true,
+		autoType: false,
+		minLength: 2
+	}) );
+    
+
+    
+    
+    
+    
+    </script>
+   
+    
+    <footer id="footer">
+
+
+
+
+        <a href=https://www.linkedin.com/in/michael-seo-b15931a7> <i class="fab fa-linkedin" id="icon"></i>
+        </a>
+
+        <a href=https://www.instagram.com/noloiteringhere> <i class="fab fa-instagram" id="icon"></i>
+        </a>
+
+
+        <a href="http://www.lisc.org/">
+            <i class="fas fa-landmark" id="icon"></i>
+        </a>
+
+
+
+
+
+
+    </footer>
+
+    
+    
+   
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+
+</html>
