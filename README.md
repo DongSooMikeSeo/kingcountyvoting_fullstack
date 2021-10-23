@@ -1,11 +1,15 @@
 
-# Catch-all Marketing is not Working for Voters
+# Voting Pattern Discrepancy Spotter with Full Stack Features (in development)
 
-If you send out un-customized marketing materials for everybody, you will just waste your resource and even end up losing your votes. 
+This project is to add back-end features to my other [project.](https://github.com/DongSooMikeSeo/kingCounty2019Analysis)
+That project stopped at just showing the diverging voting patterns on King County Election precincts. My intention was to help organizers to spot those precincts so that they can think about employing more customized marketing schemes.
 
-**See Jupyter Notebook for data wrangling and Folium Map [here.](https://github.com/DongSooMikeSeo/kingCounty2019Analysis/blob/master/King%20County%202019%20General%20Election.ipynb)**
+However, if I added functionalities where they can 1)flag those irregular precincts and 2)leave a message or opinions to themselves, it would be more useful.
+Also, if I added a summary graph that shows outliers (diverging precincts), organizers would more easily navigate to those precincts.
 
-**See final live web map [here.](https://dongsoomikeseo.github.io/kingCounty2019Analysis/)**
+With that in my mind, I have been adding a form and a graph on the map while bridging it to the back-end server using PHP.
+
+**See live map in development [here.](https://dongsoomikeseo.github.io/kingcountyvoting_fullstack/)** It is not hosted yet, so fullstack features are not working now.
 
 
 ## What is this project about?
